@@ -15,6 +15,17 @@ class CasualBattle {
   CasualBattle(this.id, this.start, this.end, this.winnerId, this.attacker,
       this.attack, this.defender, this.defense, this.attackerSeen);
 
+  factory CasualBattle.fromJson(json) => CasualBattle(
+      int.parse(json["id"]),
+      json["start"],
+      json["end"],
+      int.parse(json["winnerId"]),
+      json["attacker"],
+      json["attack"],
+      json["defender"],
+      json["defense"],
+      bool.fromEnvironment(json["attackerSeen"]));
+
   Player getOpponent(int myId) => myId == attacker.id ? defender : attacker;
 
   Card historyCard(int myId) => Card(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mage/objects/player.dart';
+import 'package:mage/pages/homepage.dart';
 import 'package:mage/remote/sign.dart';
-import 'package:mage/sign/auth_gate.dart';
 import 'package:mage/sign/register.dart';
 import 'package:mage/widgets/form_text.dart';
 
@@ -30,12 +31,34 @@ class _SignLoginState extends State<SignLogin> {
             if (!_formKey.currentState!.validate()) {
               return;
             }
-
             _formKey.currentState?.save();
 
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => AuthGate(
-                    username: usrname.getValue(), password: pass.getValue())));
+            Future<Map<String, dynamic>?> response =
+                RemoteSign.login(usrname.getValue(), pass.getValue());
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: FutureBuilder<Map<String, dynamic>?>(
+                    future: response,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        if (snapshot.data!["code"] == "s") {
+                          Future.delayed(Duration.zero, () async {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => HomePage(
+                                    player: Player.fromJson(
+                                        snapshot.data!["response"]))));
+                          });
+                        } else {
+                          Future.delayed(
+                              Duration.zero, () async => setState(() {}));
+                          return Text(snapshot.data!["response"]);
+                        }
+                      } else if (snapshot.hasError) {
+                        return const Text(
+                            "Někde se stala chyba, zkuste to později.");
+                      }
+
+                      return const Center(child: CircularProgressIndicator());
+                    })));
           },
           child: const Text("Login")),
       TextButton(

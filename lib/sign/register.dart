@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:mage/remote/sign.dart';
 import 'package:mage/widgets/form_text.dart';
 
 class SignRegister extends StatefulWidget {
@@ -30,6 +30,7 @@ class _SignRegisterState extends State<SignRegister> {
             if (!_formKey.currentState!.validate()) {
               return;
             }
+            _formKey.currentState?.save();
 
             if (pass.getValue() != passConf.getValue()) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -37,9 +38,23 @@ class _SignRegisterState extends State<SignRegister> {
               return;
             }
 
-            _formKey.currentState?.save();
+            Future<String?> response =
+                RemoteSign.register(usrname.getValue(), pass.getValue());
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: FutureBuilder(
+                    future: response,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        Future.delayed(
+                            Duration.zero, () async => setState(() {}));
+                        return Text(snapshot.data.toString());
+                      } else if (snapshot.hasError) {
+                        return const Text(
+                            "Někde se stala chyba, zkuste to později.");
+                      }
 
-            // TODO backend
+                      return const Center(child: CircularProgressIndicator());
+                    })));
           },
           child: const Text("Register")),
       TextButton(

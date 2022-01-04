@@ -14,8 +14,15 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late int wins = 0;
+  late int loses = 0;
+  late double winRate = 0;
+
   @override
   Widget build(BuildContext context) {
+    wins = widget._player.getWins(recalc: true);
+    loses = widget._player.getLoses(recalc: true);
+    winRate = widget._player.getWinRate();
     return SafeArea(
         child: Scaffold(
             body: Column(children: [
@@ -24,7 +31,7 @@ class _HomePageState extends State<HomePage> {
         TextButton(
             onPressed: () => Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (context) => const SignLogin())),
-            child: const Text("logout"))
+            child: const Icon(Icons.logout))
       ]),
       const Text("Element trees"),
       Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
@@ -34,6 +41,13 @@ class _HomePageState extends State<HomePage> {
         TextButton(onPressed: () {}, child: const Icon(Icons.public))
       ]),
       const Text("Battles"),
+      Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+        Text("Wins: " + wins.toString()),
+        Text("Loses: " + loses.toString()),
+        Text("Winrate: " + winRate.toString() + " %"),
+        TextButton(
+            onPressed: () => setState(() {}), child: const Icon(Icons.refresh))
+      ]),
       TextButton(onPressed: () {}, child: const Text("Start new one")),
       const Text("Active battles"),
       const Text("Incoming attacks"),

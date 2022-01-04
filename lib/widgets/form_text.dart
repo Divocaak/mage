@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class FormText extends StatelessWidget {
   FormText(
       {Key? key,
@@ -22,7 +23,7 @@ class FormText extends StatelessWidget {
   final int? _maxLen;
   final IconData? _icon;
 
-  getValue() => _value;
+  String getValue() => _value!;
 
   @override
   Widget build(BuildContext context) => TextFormField(
