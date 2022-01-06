@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mage/objects/player.dart';
+import 'package:mage/objects/tree.dart';
+import 'package:mage/remote/trees.dart';
 import 'package:mage/sign/login.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,11 +20,19 @@ class _HomePageState extends State<HomePage> {
   late int loses = 0;
   late double winRate = 0;
 
+  late Future<List<Tree>?> trees;
+
   @override
-  Widget build(BuildContext context) {
+  void initState() {
     wins = widget._player.getWins(recalc: true);
     loses = widget._player.getLoses(recalc: true);
     winRate = widget._player.getWinRate();
+    trees = RemoteTrees.getTreesAll(widget._player.id.toString());
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
             body: Column(children: [
@@ -34,12 +44,23 @@ class _HomePageState extends State<HomePage> {
             child: const Icon(Icons.logout))
       ]),
       const Text("Element trees"),
-      Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-        TextButton(onPressed: () {}, child: const Icon(Icons.fireplace)),
-        TextButton(onPressed: () {}, child: const Icon(Icons.water)),
-        TextButton(onPressed: () {}, child: const Icon(Icons.air)),
-        TextButton(onPressed: () {}, child: const Icon(Icons.public))
-      ]),
+      SizedBox(
+          height: 50,
+          child: FutureBuilder<List<Tree>?>(
+              future: trees,
+              builder: (context, snapshot) =>
+                  (snapshot.connectionState == ConnectionState.waiting
+                      ? const Center(child: CircularProgressIndicator())
+                      : (snapshot.hasData
+                          ? ListView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              scrollDirection: Axis.horizontal,
+                              itemCount: snapshot.data!.length,
+                              itemBuilder: (context, i) =>
+                                  snapshot.data![i].goToTreeButton(context))
+                          : (snapshot.hasError
+                              ? const Icon(Icons.error)
+                              : const Icon(Icons.check_box_outline_blank)))))),
       const Text("Battles"),
       Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
         Text("Wins: " + wins.toString()),
